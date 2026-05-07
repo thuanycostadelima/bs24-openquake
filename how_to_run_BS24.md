@@ -3,7 +3,8 @@ This is an OpenQuake hazardlib implementation of the Bayless and Somerville (202
 Implementation by Thuany Costa de Lima (thuany.costadelima@ga.gov.au), May 2026
 
 
-[![GitHub](https://img.shields.io/badge/GitHub-thuanycostadelima%2Fbs24--openquake-blue?logo=github)](https://github.com/thuanycostadelima/bs24-openquake)
+[![GitHub](https://img.shields.io/badge/GitHub-thuanycostadelima%2Fbs24--openquake-blue?logo=github)]
+(https://github.com/thuanycostadelima/bs24-openquake)
 ---
 ## Repository Contents:
 
