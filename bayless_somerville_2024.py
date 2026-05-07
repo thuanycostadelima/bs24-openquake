@@ -85,14 +85,7 @@ def _get_fM(C, mag):
 
 
 
-
-        For M < M2=5.0, geometric spreading is frozen at M2.
-        This is consistent with the Fortran (bs24_gmm.f) and the
-        OpenQuake ASK14 implementation (_get_basic_term in abrahamson_2014.py),
-        though it is not explicitly stated in the written Eq. 4.4 of
-        Abrahamson et al. (2014).
-
-#similar to Equation 4.4 in Abrahamson et al. (2014), but c4M lower anchor = 2.0 (intentional deviation from ASK14 which uses 1.0)
+#similar to Equation 4 in Abrahamson et al. (2014), but c4M lower anchor = 2.0 (intentional deviation from ASK14 which uses 1.0)
 def _get_fP(C, mag, rrup):
     """
     Path scaling fP [Equation 4 in Bayless J. and P. Somerville (2024)].
@@ -100,24 +93,29 @@ def _get_fP(C, mag, rrup):
 
     R = sqrt(Rrup^2 + c4M^2), where c4M is the additive distance term to represent the
     near-source amplitude saturation effects of the finite-fault rupture dimension as 
-    described in Equation 4.3 in Abrahamson et al. (ASK14, 2014). 
+    described in Equation 4 in Abrahamson et al. (ASK14, 2014). 
 
     The ln(R) term models the magnitude-dependent geometric spreading;
     
     a17Rrup models anelastic attenuation and scattering effects.
 
     Notes:
-        a17 differs between Cratonic (slower) and NonCratonic (faster) versions.
-        c4M tapers with magnitude (ASK14), Equation 4.4 in Abrahamson et al. (2014).
+        - a17 differs between Cratonic (slower) and NonCratonic (faster) versions.
+        
+        - c4M tapers with magnitude (ASK14), Equation 4.4 in Abrahamson et al. (2014).
             M >= 5.0 : c4M = c4
             4 <= M < 5 : c4M = c4 - (c4 - 1.0) * (5.0 - M)   [ASK14, lower anchor = 1.0]
             M < 4.0  : c4M = 1.0
 
-        Here however we set c4M lower anchor = 2.0 (intentional deviation from ASK14 which uses 1.0)
-        Jeff Bayless confirmed this was set based on scaling for very small
-        magnitudes at short distances (personal communication, May 2026).
+            Here however we set c4M lower anchor = 2.0 (intentional deviation from ASK14 which uses 1.0)
+            Jeff Bayless confirmed this was set based on scaling for very small
+            magnitudes at short distances (personal communication, May 2026).
 
-        
+        - For M < M2=5.0, geometric spreading is frozen at M2 (ASK14, pg.1032)
+            M2 = 5.0  # Fixed lower magnitude break, ASK14 PEER Report 2013/04, p.23:
+               # "the breaks in the magnitude scaling in Equation (4.2) are
+               #  set at M1=6.75 and M2=5.0"
+            
     """
     c4 = C['c4'] # Near-source saturation taper (ASK14; lower anchor = 1.0 but here we use 2.0)
     M1 = C['M1']
@@ -221,7 +219,7 @@ def _get_fZ10(C, z1pt0, vs30, imt_period):
     return np.where(dz1 <= ratio, b6 * dz1, b7)
 
 
-# # Taper 5: along-strike Ry0  [ASK14 Eq. 4.13, Ry0 version] where is this coming from:
+#  Taper 5: along-strike Ry0  [ASK14 Eq. 4.13, Ry0 version] where:
     #ry0 = getattr(ctx, 'ry0', np.zeros_like(rx))
     #ry1 = rx * np.tan(np.radians(20.0))
 def _get_fHW(C, ctx):
@@ -342,7 +340,7 @@ def _get_fHW(C, ctx):
     return C['a13'] * hw_t1 * hw_t2 * hw_t3 * hw_t4 * hw_t5
 
 
-#I havent verified the b1 and b3 values, these are copy-paste from the fortran code.
+#b1 and b3 values need to be verified, I just copy-pasted from the fortran code.
 def _get_fS(C, vs30, pga_rock):
     """
     fS: Vs30 site amplification from Seyhan and Stewart (2014) as used in Boore et al. (2014; BSSA14).
@@ -390,7 +388,7 @@ def _get_fS(C, vs30, pga_rock):
     flin = C['c_site'] * np.log(np.minimum(vs30, C['vc']) / 760.0)
 
     # --- Term 2: Nonlinear ---
-    # Fortran b1=0.0, b3=0.1 are hardcoded constants, not in the table.
+    # Fortran b1=0.0, b3=0.1 are hardcoded constants
     # b2 is zero at Vs30=760 (reference) by construction of the formula.
     b1 = 0.0   # from the fortran code
     b3 = 0.1   # from the fortran code
