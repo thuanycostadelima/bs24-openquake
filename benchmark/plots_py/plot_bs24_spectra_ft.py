@@ -1,3 +1,4 @@
+import os
 """
 BS24 Response Spectra from Fortran Output
 ==========================================
@@ -26,7 +27,8 @@ from matplotlib.lines import Line2D
 # -----------------------------------------------------------------------
 # Load Fortran output
 # -----------------------------------------------------------------------
-df = pd.read_csv('bs24_fortran_output.csv', skipinitialspace=True)
+#df = pd.read_csv(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'bs24_fortran_output.csv'), skipinitialspace=True)
+df = pd.read_csv(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'bs24_fortran_output.csv'), skipinitialspace=True)
 
 # Convert ln(cm/s/s) to g
 LN_G_TO_CMSS = 6.89

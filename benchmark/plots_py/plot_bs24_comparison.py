@@ -1,3 +1,4 @@
+import os
 """
 BS24 Response Spectra Comparison: Fortran vs Python
 =====================================================
@@ -22,7 +23,7 @@ import matplotlib.ticker as ticker
 # -----------------------------------------------------------------------
 # Load benchmark results
 # -----------------------------------------------------------------------
-df = pd.read_csv('benchmark_bs24_results.csv')
+df = pd.read_csv(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'benchmark_bs24_results.csv'))
 
 # -----------------------------------------------------------------------
 # Select scenarios to plot

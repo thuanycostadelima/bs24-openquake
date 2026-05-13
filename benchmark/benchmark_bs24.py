@@ -25,7 +25,8 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 # --- Import the Python GMM ---
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+#sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'gmm'))
 from bayless_somerville_2024 import (
     BaylessSomerville2024Cratonic,
     BaylessSomerville2024NonCratonic,
@@ -72,7 +73,8 @@ def run_python(gsim, mag, rrup, vs30, ztor, period):
 # Main
 # ---------------------------------------------------------------------------
 print("Reading Fortran output...")
-df = pd.read_csv('bs24_fortran_output.csv', skipinitialspace=True)
+#df = pd.read_csv('bs24_fortran_output.csv', skipinitialspace=True)
+df = pd.read_csv(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'bs24_fortran_output.csv'), skipinitialspace=True)
 print(f"  {len(df)} test cases loaded")
 
 gsim_c  = BaylessSomerville2024Cratonic()
