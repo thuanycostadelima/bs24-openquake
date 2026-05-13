@@ -11,7 +11,7 @@ Run with:
 import sys, os, unittest
 import numpy as np
 
-sys.path.insert(0, os.path.dirname(__file__))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'gmm'))
 from bayless_somerville_2024 import (
     BaylessSomerville2024Cratonic,
     BaylessSomerville2024NonCratonic,
@@ -201,11 +201,11 @@ class TestComponentValues(unittest.TestCase):
                                    rtol=1e-5)
 
     def test_fZtor_surface_rupture(self):
-        """fZtor at Ztor=0"""
+        """fZtor should be zero at Ztor=10 km (Rev2: model centred at Ztor=10)."""
         C = BaylessSomerville2024Cratonic().COEFFS[SA(1.0)]
-        ztor = np.array([0.0])
-        expected = C['d4']  # d1*0 + d2*0 + d3*0 + d4
-        np.testing.assert_allclose(_get_fZtor(C, ztor), [expected], rtol=1e-6)
+        ztor = np.array([10.0])
+        result = _get_fZtor(C, ztor)
+        np.testing.assert_allclose(result, [0.0], atol=1e-10)
 
     def test_fZtor_capped_at_20(self):
         """fZtor should be same for Ztor=20 and Ztor=30."""
@@ -287,7 +287,7 @@ class TestReferenceValues(unittest.TestCase):
         self._check(gsim, mag, rrup, ztor, 760., PGA(), expected, rtol=0.001)
 
     def test_cratonic_SA1_M65_R100_Ztor0(self):
-        """Cratonic SA(1.0), M6.5, Rrup=100, Ztor=0 (surface rupture)."""
+        """Cratonic SA(1.0), M6.5, Rrup=100, Ztor=0 (Ztor=10)."""
         gsim = BaylessSomerville2024Cratonic()
         C = gsim.COEFFS[SA(1.0)]
         mag, rrup, ztor = 6.5, 100., 0.
