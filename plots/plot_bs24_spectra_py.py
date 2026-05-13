@@ -17,7 +17,7 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 
 # --- Make sure the GMM file is importable ---
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'gmm'))
 from bayless_somerville_2024 import (
     BaylessSomerville2024Cratonic,
     BaylessSomerville2024NonCratonic,
