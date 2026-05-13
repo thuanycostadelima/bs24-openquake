@@ -4,4 +4,4 @@ benchmark_bs24_results.csv
 bs24_fortran_output.csv
 *.png
 *.o
-bs24_run
+bs24_run!plots/*.png
