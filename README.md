@@ -3,8 +3,7 @@
 [![GitHub](https://img.shields.io/badge/GitHub-thuanycostadelima%2Fbs24--openquake-blue?logo=github)](https://github.com/thuanycostadelima/bs24-openquake)
 
 This repository contains an OpenQuake hazardlib implementation of the Bayless and Somerville (2024) updated ground motion model (GMM) for Australia.
-
-**Author:** Thuany Costa de Lima, Geoscience Australia (thuany.costadelima@ga.gov.au), May 2026
+Implementation by Thuany Costa de Lima, Geoscience Australia (thuany.costadelima@ga.gov.au), May 13 2026
 
 ---
 
@@ -12,10 +11,14 @@ This repository contains an OpenQuake hazardlib implementation of the Bayless an
 
 BS24 is an update to the Somerville et al. (2009; Sea09) GMM, adopting the ASK14 functional form (Abrahamson et al. 2014) and incorporating new broadband ground motion simulations and recorded data from Australian earthquakes. Separate **Cratonic** and **NonCratonic** versions are provided, reflecting differences in source and crustal structure between regions.
 
-The implementation was verified by direct comparison against the Fortran reference subroutine provided by Jeff Bayless (AECOM), achieving agreement to within floating-point precision across 1760 test cases.
+## Revision History
+
+| Version | Date | Changes |
+|---|---|---|
+| Rev1 | April 2026 | Initial implementation |
+| Rev2 | May 2026 | Updated depth scaling: `Z = min(Ztor−10, 5)`, model centred at Ztor=10 km, d4=0, updated a1/d1/d2/d3 coefficients (J. Bayless, pers. comm.) |
 
 ---
-
 ## Model Description
 
 The median model follows Equation D-2 of the BS24 appendix:
@@ -37,7 +40,7 @@ Aleatory variability follows Al Atik (2015): `sigma = sqrt(tau^2 + phi^2)`
 
 Output: ln(RotD50) in units of **g** (OpenQuake standard).
 
-**Range of applicability:** M 4.0–8.0, Rrup 0–300 km, T 0.01–10 sec, Vs30 150–1500 m/s.
+**Range of applicability:** M 4.0–8.0, Rrup 0–300 km, T 0.01–10 sec, Vs30 150–1500 m/s. Results outside these ranges are extrapolations.
 
 ---
 
@@ -51,37 +54,45 @@ bs24-openquake/
 │   └── bayless_somerville_2024.py            GMM implementation (OpenQuake GSIM)
 ├── tests/
 │   ├── bayless_somerville_2024_test.py       GEM-format verification test module
-│   ├── generate_gem_test_files.py            Script to regenerate GEM CSV files from Fortran
+│   ├── generate_gem_test_files.py            Script to regenerate GEM CSV files from the original Fortran code
 │   └── data/
 │       ├── BS24_CRATONIC.csv                 GEM verification data — Cratonic
 │       └── BS24_NONCRATONIC.csv              GEM verification data — NonCratonic
 ├── benchmark/
-│   ├── bs24_runner.f                         Fortran driver (calls bs24_gmm.f)
+│   ├── bs24_runner.f                         Fortran driver (calls bs24_gmm.f over a matrix of scenarios and writes results to a CSV)
 │   ├── benchmark_bs24.py                     Benchmark script: Fortran vs Python
 │   ├── bs24_calc_suite.py                    Unit test suite (26 tests)
 │   ├── bs24_fortran_output.csv               Fortran reference output (generated)
 │   ├── generate_gem_test_files_frompy.py     Python-based CSV generator (reference)
 │   ├── how_to_run_BS24.md                    Detailed step-by-step instructions
 │   └── plots_py/
-│       ├── plot_bs24_spectra_py.py           Response spectra from Python GMM
-│       ├── plot_bs24_spectra_ft.py           Response spectra from Fortran output
+│       ├── plot_bs24_spectra_py.py           generates response spectra from the Python GMM (Cratonic vs NonCratonic, M4–8, Rrup=15 and 150 km).
+│       ├── plot_bs24_spectra_ft.py           generates the same plot from Fortran output (requires running the benchmark first).
 │       └── plot_bs24_comparison.py           Side-by-side Fortran vs Python comparison
 └── plots/
     ├── bs24_response_spectra.png             Python GMM response spectra figure
     └── bs24_fortran_spectra.png              Fortran response spectra figure
 ```
 
+---
+
+
 ### About the two test files
 
-**`benchmark/bs24_calc_suite.py`** is a standalone unit test suite written specifically for this implementation. It tests each function individually (`_get_fM`, `_get_fP`, `_get_fZtor`, `_get_fS`, `_get_fZ10`, `_get_fHW`, `_get_stddevs`) and checks the full model output for a set of reference scenarios. Run this during development to verify the code is working correctly.
+**`benchmark/bs24_calc_suite.py`** is a standalone unit test suite written specifically for this implementation. It tests each function individually (`_get_fM`, `_get_fP`, `_get_fZtor`, `_get_fS`, `_get_fZ10`, `_get_fHW`, `_get_stddevs`) and checks the full model output for a set of reference scenarios. I used this during development to verify the code is working correctly.Does not require the full GEM source tree.
 
 **`tests/bayless_somerville_2024_test.py`** is formatted specifically for submission to GEM's OpenQuake engine. It uses GEM's `BaseGSIMTestCase` framework and reads reference values from the CSV files in `tests/data/`. This file is only useful inside the GEM oq-engine source tree and cannot be run standalone.
 
+**`benchmark/benchmark_bs24.py`** — reads the Fortran CSV and compares against the Python implementation.
+
+
 ### About the GEM CSV files
 
-**`tests/data/BS24_CRATONIC.csv`** and **`tests/data/BS24_NONCRATONIC.csv`** contain pre-computed reference values (mean SA and standard deviations) for a matrix of 324 scenarios (M 4.0–7.0, Rrup 10–300 km, Vs30 270/760/1500 m/s, Ztor 0/10/20 km). Reference values are computed from the Fortran subroutine `bs24_gmm.f` — not the Python implementation — ensuring the verification data is truly independent. They are generated by running `tests/generate_gem_test_files.py` after running the Fortran runner. If you update the model coefficients you must regenerate them.
+**`tests/data/BS24_CRATONIC.csv`** and **`tests/data/BS24_NONCRATONIC.csv`** contain pre-computed reference values (mean SA and standard deviations) for a matrix of 324 scenarios (M 4.0–7.0, Rrup 10–300 km, Vs30 270/760/1500 m/s, Ztor 0/10/20 km). Reference values are computed from the Fortran subroutine `bs24_gmm.f` — not the Python implementation — ensuring the verification data is independent. They are generated by running `tests/generate_gem_test_files.py` after running the Fortran runner. If you update the model coefficients you must regenerate them.
 
-> **Note:** The Fortran subroutine `bs24_gmm.f` (authored by Jeff Bayless, AECOM) is not included in this repository as it has not been publicly released. `benchmark/bs24_runner.f` is a driver program written by T. Costa de Lima that calls `bs24_gmm.f` — to use it you will need to obtain `bs24_gmm.f` directly from the authors.
+> **Note:** The Fortran subroutine `bs24_gmm.f` (authored by Jeff Bayless, AECOM) is not included in this repository as it has not been publicly released. `benchmark/bs24_runner.f` is a driver program written by myself that calls `bs24_gmm.f` — to use it you will need to obtain `bs24_gmm.f` directly from the authors.
+
+
 
 ---
 
@@ -120,6 +131,14 @@ from openquake.hazardlib.gsim.bayless_somerville_2024 import (
 python benchmark/bs24_calc_suite.py -v
 ```
 
+Expected output:
+```
+----------------------------------------------------------------------
+Ran 26 tests in 0.XXXs
+
+OK
+```
+
 ### 5. Generate response spectra figures
 
 ```bash
@@ -135,24 +154,36 @@ python benchmark/plots_py/plot_bs24_comparison.py
 
 Figures are saved to the `plots/` folder.
 
----
 
+---
 ## Detailed Instructions
 
-See `benchmark/how_to_run_BS24.md` for full step-by-step instructions including benchmarking, PSHA usage, implementation notes, and troubleshooting.
+See `benchmark/how_to_run_BS24.md` for instructions including benchmarking, PSHA usage, and troubleshooting.
 
 ---
 
-## Known Implementation Notes
+## Implementation Notes
 
 The following details were verified against the Fortran reference and confirmed by Jeff Bayless (personal communication, May 2026):
 
-- **Rock PGA reference uses SA(0.01):** The nonlinear site term uses SA(0.01) coefficients, consistent with the Fortran (`pgat=0.01`). Only affects Vs30 ≠ 760 m/s.
-- **c4M lower anchor = 2.0:** Intentional deviation from ASK14 (which uses 1.0), confirmed by Jeff Bayless.
-- **Geometric spreading frozen at M2:** For M < 5.0, consistent with Fortran and OpenQuake ASK14.
-- **Basin term threshold = 0.65 sec:** Following BSSA14 Eq. 9. The Fortran used 0.75 sec which was a confirmed typo.
-- **Basin term off by default:** Set `ctx.z1pt0 = -999` (recommended for Australia until Z1.0 measurements are collected).
-- **hwflag parameter:** Pass `hwflag=0` to suppress hanging wall term for point sources.
+
+1. **Rock PGA reference uses SA(0.01):** The nonlinear site term requires a reference PGA at Vs30=760 m/s. The Fortran computes this at T=0.01 sec (`pgat=0.01`), not T=0. Only affects results at Vs30 ≠ 760 m/s.
+
+2. **c4M lower anchor = 2.0:** For M < 5, the near-source saturation taper uses a lower anchor of 2.0 (not 1.0 as in ASK14). Intentional choice by Jeff Bayless for small-magnitude short-distance scaling; not documented in the written equations.
+
+3. **Geometric spreading frozen at M2 for M < M2:** For M < M2=5.0, the geometric spreading term uses M2 rather than the actual magnitude. Consistent with the Fortran and OpenQuake ASK14 implementation.
+
+4. **Basin term threshold = 0.65 sec:** fZ1.0 is suppressed for T < 0.65 sec, following BSSA14 Eq. 9. The Fortran used 0.75 sec which was a confirmed typo.
+
+5. **Basin term off by default for Australia:** Set `ctx.z1pt0 = -999` to suppress the basin term — recommended until Z1.0 measurements are collected in Australia.
+
+6. **hwflag parameter:** Pass `hwflag=0` to suppress the hanging wall term for point source scenarios where Rx is not well defined:
+   ```python
+   gsim = BaylessSomerville2024Cratonic(hwflag=0)
+   ```
+
+7. **Depth scaling centred at Ztor=10 km (Rev2):** The fZtor term uses `Z = min(Ztor-10, 5)` so that the model has no depth scaling at Ztor=10 km. d4=0 for all periods.
+
 
 ---
 
@@ -169,9 +200,3 @@ Donahue J.L. and Abrahamson N.A. (2014). Simulation-Based Hanging Wall Effects. 
 Al Atik L. (2015). NGA-East: Ground-Motion Standard Deviation Models for Central and Eastern North America. PEER Report 2015/07.
 
 Somerville P.G. et al. (2009). Source and Ground Motion Models of Australian Earthquakes. *Proc. AEES 2009 Annual Conference*, Newcastle.
-
----
-
-## Licence
-
-This implementation is released under the [Apache 2.0 Licence](https://www.apache.org/licenses/LICENSE-2.0).
