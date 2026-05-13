@@ -116,10 +116,10 @@ c -----------------------------------------------------------------------
 c     --- Dimensions of the scenario matrix ---
 c     Edit these parameters and the data statements below to change
 c     what scenarios are tested.
-      integer, parameter :: NMAG  = 5   ! number of magnitudes
-      integer, parameter :: NRRUP = 2   ! number of distances
-      integer, parameter :: NVS   = 2   ! number of Vs30 values
-      integer, parameter :: NZTOR = 2   ! number of Ztor values
+      integer, parameter :: NMAG  = 6   ! number of magnitudes
+      integer, parameter :: NRRUP = 6   ! number of distances
+      integer, parameter :: NVS   = 3   ! number of Vs30 values
+      integer, parameter :: NZTOR = 3   ! number of Ztor values
       integer, parameter :: NPER  = 22  ! number of spectral periods
       integer, parameter :: NCRAT = 2   ! Cratonic + NonCratonic
 
@@ -131,10 +131,10 @@ c     --- Scenario arrays ---
       real periods(NPER)
       integer crat_flags(NCRAT)
 
-      data mags      / 4.0, 5.0, 6.0, 7.0, 8.0 /
-      data rrup_vals / 15.0, 150.0 /
-      data vs30_vals / 760.0, 400.0 /
-      data ztor_vals / 0.0, 10.0 /
+      data mags      / 4.0, 5.0, 5.5, 6.0, 6.5, 7.0 /
+      data rrup_vals / 10.0, 30.0, 50.0, 100.0, 200.0, 300.0 /
+      data vs30_vals / 270.0, 760.0, 1500.0 /
+      data ztor_vals / 0.0, 10.0, 20.0 /
       data periods   /
      &  0.010, 0.015, 0.020, 0.030, 0.040, 0.050, 0.075,
      &  0.100, 0.150, 0.200, 0.300, 0.400, 0.500, 0.750,
