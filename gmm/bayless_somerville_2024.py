@@ -11,11 +11,13 @@ Reference:
     Australia Developed Using Broadband Ground Motion Simulations.
     Proc. AEES 2024 National Conference, Adelaide, South Australia.
 
-    Coefficients and Fortran code kindly provided by Jeff Bayless
+    Coefficients and Fortran code with the model were kindly provided by Jeff Bayless
     (jeff.bayless@aecom.com).
-    Full coefficient tables from: 
-    Appendix D - Bayless J. and P. Somerville (2024, updated April 2026). 
-    AECOM internal report. 
+    
+    Full coefficient tables from:
+    Appendix D - Bayless J. and P. Somerville (2024, updated May 2026). 
+    AECOM internal report.
+
 ===========================================================================
 Model description  (Equations from the 2024 AEES paper):
 
@@ -85,7 +87,6 @@ def _get_fM(C, mag):
 
 
 
-#similar to Equation 4 in Abrahamson et al. (2014), but c4M lower anchor = 2.0 (intentional deviation from ASK14 which uses 1.0)
 def _get_fP(C, mag, rrup):
     """
     Path scaling fP [Equation 4 in Bayless J. and P. Somerville (2024)].
@@ -117,7 +118,7 @@ def _get_fP(C, mag, rrup):
                #  set at M1=6.75 and M2=5.0"
             
     """
-    c4 = C['c4'] # Near-source saturation taper (ASK14; lower anchor = 1.0 but here we use 2.0)
+    c4 = C['c4']
     M1 = C['M1']
     M2 = 5.0
 
@@ -137,7 +138,7 @@ def _get_fZtor(C, ztor):
     Depth scaling fZtor [Originally from Equation 5 in Bayless and Somerville (2024)]:
         fZtor = d1*Z^3 + d2*Z^2 + d3*Z + d4
     
-    instead of Z = min(Ztor, 20 km), we have now Z = min(Ztor - 10, 5) after personal communication
+    However, instead of using Z = min(Ztor, 20 km), we now have Z = min(Ztor - 10, 5) after personal communication
     with Jeff Bayless [BS24 Appendix Rev2, May 2026].
 
     -Ztor is the depth to the top of the rupture plane in km.
@@ -217,8 +218,8 @@ def _get_fZ10(C, z1pt0, vs30, imt_period):
     b6, b7 = C['b6'], C['b7']
     ratio = np.where(np.abs(b6) > 1e-9, b7 / b6, 1e9)   # b6 is the slope (how much amplification per km of 
                                                         # extra basin depth) and b7 is the maximum cap. The 
-                                                        # ratio line just avoids dividing by zero in the rare 
-                                                        # case b6 is ezero
+                                                        # ratio line just avoids dividing by zero in the
+                                                        # case b6 is zero
 
     return np.where(dz1 <= ratio, b6 * dz1, b7)
 
@@ -438,7 +439,6 @@ class BaylessSomerville2024Base(GMPE):
     def compute(self, ctx: np.recarray, imts, mean, sig, tau, phi):
         # Pass 1: rock PGA at Vs30=760 for nonlinear site term
         #C_PGA = self.COEFFS[PGA()]
-        
         C_PGA = self.COEFFS[SA(0.01)]  # Fortran uses pgat=0.01, not T=0
         pga_rock = np.exp(
             _get_fM(C_PGA, ctx.mag)
