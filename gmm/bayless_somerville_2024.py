@@ -209,7 +209,7 @@ def _get_fZ10(C, z1pt0, vs30, imt_period):
                                             # If z1pt0 is -999 (not measured), we use the Vs30-derived reference. \
                                             # Otherwise we use the actual measured value.
 
-    dz1 = z1 - z1_ref                   #[Eq. 10 Boore et al., 2024], This is the deviation of the site's actual basin depth
+    dz1 = z1 - z1_ref                   #[Eq. 10 Boore et al., 2014], This is the deviation of the site's actual basin depth
                                         # from what you'd expect given its Vs30. 
                                         # A positive dz1 means the basin is deeper than average for 
                                         # that Vs30 -> extra amplification. A negative dz1 means shallower 
@@ -345,7 +345,7 @@ def _get_fHW(C, ctx):
     return C['a13'] * hw_t1 * hw_t2 * hw_t3 * hw_t4 * hw_t5
 
 
-#b1 and b3 values need to be verified, I just copy-pasted from the fortran code.
+
 def _get_fS(C, vs30, pga_rock):
     """
     fS: Vs30 site amplification from Seyhan and Stewart (2014) as used in Boore et al. (2014; BSSA14).
