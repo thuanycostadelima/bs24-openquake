@@ -6,7 +6,7 @@ Jeff Bayless's bs24_gmm.f) and reformats it into the GEM hazardlib CSV format
 for submission to the OpenQuake engine test suite.
 
 Using the Fortran as the reference ensures the GEM verification data is
-truly independent of the Python implementation.
+independent of the Python implementation.
 
 Usage (run from repo root):
     python tests/generate_gem_test_files.py
