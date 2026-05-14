@@ -153,7 +153,8 @@ if n_fail_mean > 0:
 # ---------------------------------------------------------------------------
 # Save CSV
 # ---------------------------------------------------------------------------
-out_csv = 'benchmark_bs24_results.csv'
+#out_csv = 'benchmark_bs24_results.csv'
+out_csv = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'benchmark_bs24_results.csv')
 results.to_csv(out_csv, index=False, float_format='%.6f')
 print(f"\nFull results saved to {out_csv}")
 
