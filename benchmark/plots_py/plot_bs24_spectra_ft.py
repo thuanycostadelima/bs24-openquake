@@ -41,8 +41,8 @@ df = df[df['period'] > 0].copy()
 # Plot settings — same as bs24_response_spectra.png
 # -----------------------------------------------------------------------
 MAGNITUDES = [4.0, 5.0, 6.0, 7.0, 8.0]
-RRUP_LEFT  = 15.0
-RRUP_RIGHT = 150.0
+RRUP_LEFT  = 10.0
+RRUP_RIGHT = 100.0
 VS30       = 760.0
 ZTOR       = 0.0
 
@@ -138,6 +138,5 @@ axes[0].legend(handles=mag_handles + style_handles,
 #    fontsize=11, y=1.01
 #)
 plt.tight_layout()
-plt.savefig('bs24_fortran_spectra.png', dpi=150,
-            bbox_inches='tight', facecolor='white')
+plt.savefig(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'plots', 'bs24_fortran_spectra.png'), dpi=150, bbox_inches="tight", facecolor="white")
 print('Saved: bs24_fortran_spectra.png')

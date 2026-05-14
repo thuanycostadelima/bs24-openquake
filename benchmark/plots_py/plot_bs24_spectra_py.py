@@ -28,8 +28,8 @@ from openquake.hazardlib.imt import PGA, SA
 # Scenario parameters  (change these to edit the plot)
 # -----------------------------------------------------------------------
 MAGNITUDES  = [4.0, 5.0, 6.0, 7.0, 8.0]   # moment magnitudes
-RRUP_LEFT   = 15.0    # km  - left panel (near source)
-RRUP_RIGHT  = 150.0   # km  - right panel (regional)
+RRUP_LEFT   = 10.0    # km  - left panel (near source)
+RRUP_RIGHT  = 100.0   # km  - right panel (regional)
 ZTOR        = 0.0     # km  - surface rupture (Ztor=0)
 DIP         = 45.0    # degrees
 RAKE        = 90.0    # degrees (reverse)
@@ -177,6 +177,6 @@ axes[0].legend(handles=all_handles, fontsize=9, loc='lower left',
 #)
 plt.tight_layout()
 
-outpath = 'bs24_response_spectra.png'
+outpath = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'plots', 'bs24_response_spectra.png')
 plt.savefig(outpath, dpi=150, bbox_inches='tight', facecolor='white')
 print(f'Saved: {outpath}')
